@@ -44,7 +44,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
-    REQUIRED_FIELDS = ['name', 'email']
+    REQUIRED_FIELDS = ['name']
     USERNAME_FIELD  = 'email'
 
     is_realtor = models.BooleanField(default=False)
