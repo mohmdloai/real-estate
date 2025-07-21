@@ -50,7 +50,16 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
 
     is_realtor = models.BooleanField(default=False)
 
+    """
+        How Django Resolves the User Model ->> from settings looks for AUTH_USER_MODEL = 'users.UserAccount'  # app_label.model_name.....
+        Then will exec the command->  UserAccount.objects.create_superuser(email=email, name=name, password=password)
+        ... but =>>>Since UserAccount.objects = UserAccountManager(), it calls:
+        UserAccountManager().create_superuser(email=email, name=name, password=password)
+    """
 
+    """
+        check -> from django.contrib import auth where : get_user_model() fn is defined
+    """
     objects = UserAccountManager()
 
     def __str__(self):
