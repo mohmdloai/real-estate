@@ -1,6 +1,9 @@
 class AuthRouter():
-
-    route_app_labels = {'users'} #users app
+    """
+    as Operations to perform:
+    Apply all migrations: admin, auth, contenttypes, sessions, users
+    """
+    route_app_labels = {'users', 'admin', 'contenttypes', 'sessions','auth'} #users app
 
 
     """
