@@ -92,7 +92,8 @@ DATABASES = {
 }
 
 DATABASE_ROUTERS =[
-    'users.router.AuthRouter'
+    'users.router.AuthRouter',
+    'listings.router.ListingsRouter'
 ]
 
 
