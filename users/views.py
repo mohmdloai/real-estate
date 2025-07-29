@@ -77,7 +77,9 @@ class RetrieveUserView(APIView):
 
     def get(self, request, format=None):
         try:
+            #User always available = request.user (thanks to middleware)
             user = request.user # -> need to be serialized ...
+
             user = UserSerializer(user)
 
             return Response(
