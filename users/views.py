@@ -32,7 +32,7 @@ class RegisterView(APIView):
                     if not User.objects.filter(email=email).exists():
 
                         if not is_realtor:
-                            User.objects.acreate_user(name=name,email=email,password=password)
+                            User.objects.create_user(name=name,email=email,password=password)
                             return Response(
                                 {'success': 'User created successfully'},
                                 status=status.HTTP_201_CREATED
