@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
 
+from .serializers import UserSerializer
+
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -66,5 +68,24 @@ class RegisterView(APIView):
         except:
             return Response(
                 {'error':"Oh!, something went wrong while registering"},
+                status= status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+
+class RetrieveUserView(APIView):
+
+    def get(self, request, format=None):
+        try:
+            user = request.user # -> need to be serialized ...
+            user = UserSerializer(user)
+
+            return Response(
+                {'user': user.data},
+                status=status.HTTP_200_OK
+            )
+        except:
+            return Response(
+                {'error':"Oh!, something went wrong while retrieving data"},
                 status= status.HTTP_500_INTERNAL_SERVER_ERROR
             )
