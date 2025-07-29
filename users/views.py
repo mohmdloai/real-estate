@@ -13,7 +13,7 @@ class RegisterView(APIView):
 
         try:
 
-            data = request.body
+            data = request.data
 
             name = data['name']
             email = data['email']
