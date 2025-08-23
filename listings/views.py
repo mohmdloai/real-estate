@@ -65,7 +65,7 @@ class ManagingListingView(APIView):
             elif home_type == 'CONDO':
                 home_type = 'Condo'
             else:
-                home_type = 'HOUSE'
+                home_type = 'House'
 
             main_photo = data['main_photo']
 
