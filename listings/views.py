@@ -35,19 +35,21 @@ class ManagingListingView(APIView):
             try:
                 price = int(price)
             except:
-                return Response({'error':'price must be integer!'})
+                return Response({'error':'price must be integer!'},
+                                status=status.HTTP_400_BAD_REQUEST)
 
             bedrooms = data['bedrooms']
             try:
                 bedrooms = int(bedrooms)
             except:
-                return Response({'error':'bedrooms must be integer!'})
+                return Response({'error':'bedrooms must be integer!'},
+                                status=status.HTTP_400_BAD_REQUEST)
 
             bathrooms = data['bathrooms']
             try:
                 bathrooms = float(bathrooms)
             except:
-                return Response({'error':'bathrooms must be floating point number!'})
+                return Response({'error':'bathrooms must be floating point number!'},status=status.HTTP_400_BAD_REQUEST)
 
             if bathrooms <= 0 or bathrooms >= 10 :
                 bathrooms = 1.0
