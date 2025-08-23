@@ -23,7 +23,7 @@ class ManagingListingView(APIView):
 
             slug = data['slug']
             if Listing.objects.filter(slug=slug).exists():
-                Response({'error': 'Listing with this slug already exists !'},
+                return Response({'error': 'Listing with this slug already exists !'},
                         status=status.HTTP_400_BAD_REQUEST
                         )
 
