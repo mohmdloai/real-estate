@@ -1,0 +1,2 @@
+python manage.py makemigrations listings
+python manage.py migrate --database=listings
