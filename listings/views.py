@@ -14,7 +14,7 @@ class ManagingListingView(APIView):
                 return Response({'error':'User has no permission to access'},status=status.HTTP_403_FORBIDDEN)
             slug = request.query_params.get('slug')
             if not slug:
-                listing = Listing.objects.order_by('-date_created').filter(realtor = user.email)
+                listing = Listing.objects.order_by('-created_at').filter(realtor = user.email)
                 listing = ListingSerializer(listing, many=True)
 
                 return Response({'listings': listing.data},
