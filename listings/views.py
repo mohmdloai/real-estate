@@ -23,7 +23,7 @@ class ManagingListingView(APIView):
                 realtor = user.email,
                 slug = slug
             ).exists():
-                Response({'error': 'Listing not found'},status=status.HTTP_404_NOT_FOUND)
+                return  Response({'error': 'Listing not found'},status=status.HTTP_404_NOT_FOUND)
 
             listing = Listing.objects.get(realtor=user.email, slug=slug)
             listing = ListingSerializer(listing)# no many as dict (like obj)... not a list like above
