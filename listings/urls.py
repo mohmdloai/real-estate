@@ -2,5 +2,5 @@ from django.urls import path
 from .views import ManagingListingView
 
 urlpatterns = [
-    path('create' , ManagingListingView.as_view())
+    path('manage' , ManagingListingView.as_view())
 ]
