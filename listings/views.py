@@ -3,12 +3,34 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Listing
-
+from .serializers import ListingSerializer
 
 class ManagingListingView(APIView):
 
     def get(self, request, format=None):
-        pass
+        try:
+            user = request.user
+            if not user.is_realtor:
+                return Response({'error':'User has no permission to access'},status=status.HTTP_403_FORBIDDEN)
+            slug = request.query_params.get('slug')
+            if not slug:
+                listing = Listing.objects.order_by('-date_created').filter(realtor = user.email)
+                listing = ListingSerializer(listing, many=True)
+
+                return Response({'listings': listing.data},
+                                status=status.HTTP_200_OK) #wrapped ( .data ) within serialized
+            if not Listing.objects.filter(
+                realtor = user.email,
+                slug = slug
+            ).exists():
+                Response({'error': 'Listing not found'},status=status.HTTP_404_NOT_FOUND)
+
+            listing = Listing.objects.get(realtor=user.email, slug=slug)
+            listing = ListingSerializer(listing)# no many as dict (like obj)... not a list like above
+            return Response({'listing': listing.data},status=status.HTTP_200_OK)
+
+        except:
+            return Response({'error': 'O something went wrong while retrieving data!'})
 
 
     def post(self, request):
