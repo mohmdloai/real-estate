@@ -30,7 +30,7 @@ class ManagingListingView(APIView):
             return Response({'listing': listing.data},status=status.HTTP_200_OK)
 
         except:
-            return Response({'error': 'O something went wrong while retrieving data!'})
+            return Response({'error': 'O something went wrong while retrieving data!'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
     def post(self, request):
