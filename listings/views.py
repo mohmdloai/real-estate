@@ -134,3 +134,28 @@ class ManagingListingView(APIView):
             },
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     #will be for a realtor -> must be authorized and authenticated.
+
+
+class ListingDetailView(APIView):
+    def get(self, request, format=None):
+
+
+        try:
+            #==> /api/listing/detail?slug=the_slug_of_listing
+
+            #- get the slug from req params
+
+            slug = request.query_params.get('slug')
+
+            if not slug:
+                return Response({'error':'slung must provided'},status=status.HTTP_400_BAD_REQUEST)
+
+            if not Listing.objects.filter(slug=slug, is_published=True).exists():
+                return Response({'error':'Listing not found!'},status=status.HTTP_404_NOT_FOUND)
+
+            listing = Listing.objects.get(slug=slug, is_published=True)
+            listing = ListingSerializer(listing)
+
+            return Response({'listing':listing.data},status=status.HTTP_200_OK)
+        except:
+            return Response({'error':'Error while retrieving listing data!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
