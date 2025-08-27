@@ -148,7 +148,7 @@ class ListingDetailView(APIView):
             slug = request.query_params.get('slug')
 
             if not slug:
-                return Response({'error':'slung must provided'},status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error':'slug must be provided'},status=status.HTTP_400_BAD_REQUEST)
 
             if not Listing.objects.filter(slug=slug, is_published=True).exists():
                 return Response({'error':'Listing not found!'},status=status.HTTP_404_NOT_FOUND)
