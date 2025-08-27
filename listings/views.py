@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 
 from .models import Listing
 from .serializers import ListingSerializer
@@ -159,3 +159,25 @@ class ListingDetailView(APIView):
             return Response({'listing':listing.data},status=status.HTTP_200_OK)
         except:
             return Response({'error':'Error while retrieving listing data!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ListingView(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request, format=None):
+
+
+        try:
+            # ==> check if there are published listings or not
+
+            if not Listing.objects.filter(is_published=True).exists():
+                return Response({'error':'No published listings found'},status=status.HTTP_404_NOT_FOUND)
+
+            # ==> retrieve those published
+            listings = Listing.objects.order_by('-created_at').filter(is_published=True)
+            # many=True --> as a list
+            listings = ListingSerializer(listings, many=True)
+
+            return Response({'listings':listings.data},status=status.HTTP_200_OK)
+        except:
+            return Response({'error':'Something went wrong while retrieving listings !'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
