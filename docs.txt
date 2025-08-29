@@ -1,2 +1,8 @@
 python manage.py makemigrations listings
 python manage.py migrate --database=listings
+
+# for drf serializer in comparison with views
+
+.save() doesn’t magically save “the serializer” — it calls create() or update() on the model instance using the validated data.
+
+You use it because it keeps validation, persistence, and response formatting consistent across DRF, rather than writing raw objects.update() every time.
