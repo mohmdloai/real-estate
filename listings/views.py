@@ -185,6 +185,65 @@ class ManagingListingView(APIView):
     #will be for a realtor -> must be authorized and authenticated.
 
 
+    def put(self, request , format=None):
+
+        try:
+            user = request.user
+            if not user.is_realtor:
+                return Response({'error':'User has no permission to update this listing'},status=status.HTTP_403_FORBIDDEN)
+
+            data = request.data
+            data = self.retrieve_values_fn(data)
+
+            title = data['title']
+            slug = data['slug']
+            address = data['address']
+            city = data['city']
+            state = data['state']
+            zipcode = data['zipcode']
+            description = data['description']
+            price = data['price']
+            bathrooms = data['bathrooms']
+            bedrooms = data['bedrooms']
+            sale_type = data['sale_type']
+            home_type = data['home_type']
+            main_photo = data['main_photo']
+            photo_1 = data['photo_1']
+            photo_2 = data['photo_2']
+            photo_3 = data['photo_3']
+            is_published = data['is_published']
+
+            if not Listing.objects.filter(realtor=user.email, slug=slug).exists():
+                return Response({'error':'Listing Not Found'},status=status.HTTP_404_NOT_FOUND)
+
+            Listing.objects.filter(realtor=user.email, slug=slug).update(
+
+            title = title,
+            slug = slug,
+            address = address,
+            city = city,
+            state = state,
+            zipcode = zipcode,
+            description = description,
+            price = price,
+            bathrooms = bathrooms,
+            bedrooms = bedrooms,
+            sale_type = sale_type,
+            home_type = home_type,
+            main_photo = main_photo,
+            photo_1 = photo_1,
+            photo_2 = photo_2,
+            photo_3 = photo_3,
+            is_published = is_published
+        )
+            return Response({'success':'Listing updated successfully'},status=status.HTTP_200_OK)
+        except:
+            return Response({
+                'error': 'Something went wrong while updating a listing, please try again! '
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class ListingDetailView(APIView):
     def get(self, request, format=None):
 
