@@ -6,3 +6,68 @@ python manage.py migrate --database=listings
 .save() doesn’t magically save “the serializer” — it calls create() or update() on the model instance using the validated data.
 
 You use it because it keeps validation, persistence, and response formatting consistent across DRF, rather than writing raw objects.update() every time.
+
+In ModelSerializer, the default create() looks like:
+
+def create(self, validated_data):
+    return self.Meta.model.objects.create(**validated_data)
+
+Difference: instance.save() vs Model.objects.update()
+🟢 instance.save()
+
+Method on a single model instance.
+
+Example:
+```bash
+listing = Listing.objects.get(id=1)
+listing.title = "New Title"
+listing.save()
+
+What happens:
+
+Calls the model’s save() method (which you can override).
+
+Triggers Django signals (pre_save, post_save).
+
+Validates constraints (unique, null, etc. at the database level).
+
+Good for updating one object at a time.
+
+```
+
+🟠 Model.objects.update()
+
+Works on a queryset (bulk update).
+
+Example:
+```bash
+Listing.objects.filter(price__lt=10).update(price=20)
+
+
+What happens:
+
+Executes a direct SQL UPDATE without loading instances into Python.
+
+Does not call save() on each instance.
+
+Does not trigger pre_save/post_save signals.
+
+Very fast for bulk updates.
+
+But skips any model-level business logic you may have in save().
+```
+
+
+3. Summary
+
+Serializer + .save()
+
+create() → uses Model.objects.create() for new objects.
+
+update() → uses instance.save() for existing objects.
+
+Difference between instance.save() and Model.objects.update()
+
+instance.save() = full Django lifecycle (signals, model logic, constraints).
+
+Model.objects.update() = straight SQL update, skips Django’s hooks, faster for bulk changes.
