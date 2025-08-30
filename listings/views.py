@@ -276,7 +276,28 @@ class ManagingListingView(APIView):
             },
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    def delete(self, request):
+        try:
+            user = request.user
+            if not user.is_realtor:
+                return Response({'error':'User has no permission to update this listing'},status=status.HTTP_403_FORBIDDEN)
 
+
+            data = request.data
+
+            slug = data['slug']
+
+            if not Listing.objects.filter(realtor=user.email, slug=slug).exists():
+                return Response({'error':"Listing Not found to be deleted!"},status=status.HTTP_404_NOT_FOUND)
+
+            else:
+                Listing.objects.filter(realtor=user.email, slug=slug).delete()
+                return Response({'success':'Listing deleted successfully'}, status=status.HTTP_200_OK)
+        except:
+            return Response({
+                'error': 'Something went wrong while updating a listing, please try again! '
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ListingDetailView(APIView):
     def get(self, request, format=None):
