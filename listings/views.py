@@ -292,7 +292,10 @@ class ManagingListingView(APIView):
 
             else:
                 Listing.objects.filter(realtor=user.email, slug=slug).delete()
-                return Response({'success':'Listing deleted successfully'}, status=status.HTTP_200_OK)
+                if not Listing.objects.filter(realtor=user.email, slug=slug).exists():
+                    return Response(status=status.HTTP_204_NO_CONTENT)
+
+                return Response({'error':'Failed to delete listing !'}, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({
                 'error': 'Something went wrong while deleting a listing, please try again! '
