@@ -153,6 +153,7 @@ class ManagingListingView(APIView):
                 return Response({'error': 'Listing with this slug already exists !'},
                     status=status.HTTP_400_BAD_REQUEST
                     )
+            #TODO => TRY  to use serializer .save() & .is_valid() .errors  method while creating
             Listing.objects.create(
                 realtor = user.email,
                 title = title,
@@ -264,7 +265,7 @@ class ManagingListingView(APIView):
                 return Response({'error':'Listing doesn\'t exist' },status=status.HTTP_404_NOT_FOUND)
 
             Listing.objects.filter(realtor=user.email, slug=slug).update(
-                
+
                 is_published=is_published
             )
 
