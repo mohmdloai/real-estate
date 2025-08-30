@@ -317,7 +317,7 @@ class ListingView(APIView):
             # ==> retrieve those published
             listings = Listing.objects.order_by('-created_at').filter(is_published=True)
             # many=True --> as a list
-            listings = ListingSerializer(listings, many=True)
+            listings = ListingSerializer(listings, many=True) # TODO: IS  this the best or to deal with as prop then self.myserializer().  ????
 
             return Response({'listings':listings.data},status=status.HTTP_200_OK)
         except:
