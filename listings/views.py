@@ -295,7 +295,7 @@ class ManagingListingView(APIView):
                 return Response({'success':'Listing deleted successfully'}, status=status.HTTP_200_OK)
         except:
             return Response({
-                'error': 'Something went wrong while updating a listing, please try again! '
+                'error': 'Something went wrong while deleting a listing, please try again! '
             },
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
