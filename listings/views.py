@@ -284,8 +284,10 @@ class ManagingListingView(APIView):
 
 
             data = request.data
-
-            slug = data['slug']
+            try:
+                slug = data['slug']
+            except:
+                return Response({'error':'Slug must be provided'},status=status.HTTP_400_BAD_REQUEST)
 
             if not Listing.objects.filter(realtor=user.email, slug=slug).exists():
                 return Response({'error':"Listing Not found to be deleted!"},status=status.HTTP_404_NOT_FOUND)
