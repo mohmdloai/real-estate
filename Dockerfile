@@ -7,7 +7,11 @@ RUN pip install uv
 
 RUN apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
-        libpq-dev gcc \
+        libpq-dev \
+        gcc \
+        python3-dev \
+        build-essential \
+        libc6-dev \
     && rm -rf /var/lib/apt/lists/*
 
 
