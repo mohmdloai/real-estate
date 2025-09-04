@@ -1,0 +1,72 @@
+version: "3.8"
+
+services:
+  users_db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: users_user
+      POSTGRES_PASSWORD: users_password
+    volumes:
+      - users_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U users_user -d users_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  listings_db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: listings_db
+      POSTGRES_USER: listings_user
+      POSTGRES_PASSWORD: listings_password
+    volumes:
+      - listings_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U listings_user -d listings_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      users_db:
+        condition: service_healthy
+      listings_db:
+        condition: service_healthy
+    environment:
+      # Users DB
+      - USERS_DB_ENGINE=django.db.backends.postgresql
+      - USERS_DB_NAME=users_db
+      - USERS_DB_USER=users_user
+      - USERS_DB_PASSWORD=users_password
+      - USERS_DB_HOST=users_db
+      - USERS_DB_PORT=5432
+      # Listings DB
+      - LISTINGS_DB_ENGINE=django.db.backends.postgresql
+      - LISTINGS_DB_NAME=listings_db
+      - LISTINGS_DB_USER=listings_user
+      - LISTINGS_DB_PASSWORD=listings_password
+      - LISTINGS_DB_HOST=listings_db
+      - LISTINGS_DB_PORT=5432
+      - DJANGO_SETTINGS_MODULE=core.settings
+    volumes:
+      - .:/app
+    command:
+      [
+        "sh",
+        "-c",
+        "uv run python manage.py migrate --database=users && uv run python manage.py migrate --database=listings && uv run python manage.py runserver 0.0.0.0:8000",
+      ]
+
+volumes:
+  users_data:
+  listings_data:
