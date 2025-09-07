@@ -79,7 +79,14 @@ DATABASES = {
         'USER': os.getenv('USERS_DB_USER'),
         'PASSWORD': os.getenv('USERS_DB_PASSWORD'),
         'HOST':os.getenv('USERS_DB_HOST'),
-        'PORT': os.getenv('USERS_DB_PORT')
+        'PORT': os.getenv('USERS_DB_PORT'),
+        'OPTIONS':{
+            'pool': {
+                'max_size': 8,
+                'min_size': 2,
+                'timeout': 10
+            }
+        }
 
     },
     'listings': {
@@ -88,7 +95,14 @@ DATABASES = {
         'USER': os.getenv('LISTINGS_DB_USER'),
         'PASSWORD': os.getenv('LISTINGS_DB_PASSWORD'),
         'HOST':os.getenv('LISTINGS_DB_HOST'),
-        'PORT': os.getenv('LISTINGS_DB_PORT')
+        'PORT': os.getenv('LISTINGS_DB_PORT'),
+        'OPTIONS':{
+            'pool': {
+                'max_size': 8,
+                'min_size': 2,
+                'timeout': 10
+            }
+        }
 
 }
 }
