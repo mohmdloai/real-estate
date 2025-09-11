@@ -19,7 +19,7 @@ class RegisterView(APIView):
             email = data['email']
             password = data['password']
             re_password = data['re_password']
-            is_realtor = data['is_realtor']# => it returns a str
+            is_realtor = data['is_realtor'] # => it returns a str
 
 
             if is_realtor == 'True':
@@ -34,7 +34,7 @@ class RegisterView(APIView):
                         if not is_realtor:
                             User.objects.create_user(name=name,email=email,password=password)
                             return Response(
-                                {'success': 'User created successfully'},
+                                {'success': 'User created successfully', 'email': email},
                                 status=status.HTTP_201_CREATED
                             )
                         else:
