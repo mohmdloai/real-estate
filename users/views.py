@@ -19,7 +19,7 @@ class RegisterView(APIView):
             email = data['email']
             password = data['password']
             re_password = data['re_password']
-            is_realtor = data['is_realtor']# => it returns a str
+            is_realtor = data['is_realtor'] # => it returns a str
 
 
             if is_realtor == 'True':
