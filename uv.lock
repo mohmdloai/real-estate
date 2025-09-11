@@ -176,6 +176,35 @@ wheels = [
 ]
 
 [[package]]
+name = "psycopg"
+version = "3.2.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tzdata", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a9/f1/0258a123c045afaf3c3b60c22ccff077bceeb24b8dc2c593270899353bd0/psycopg-3.2.10.tar.gz", hash = "sha256:0bce99269d16ed18401683a8569b2c5abd94f72f8364856d56c0389bcd50972a", size = 160380, upload-time = "2025-09-08T09:13:37.775Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4a/90/422ffbbeeb9418c795dae2a768db860401446af0c6768bc061ce22325f58/psycopg-3.2.10-py3-none-any.whl", hash = "sha256:ab5caf09a9ec42e314a21f5216dbcceac528e0e05142e42eea83a3b28b320ac3", size = 206586, upload-time = "2025-09-08T09:07:50.121Z" },
+]
+
+[package.optional-dependencies]
+pool = [
+    { name = "psycopg-pool" },
+]
+
+[[package]]
+name = "psycopg-pool"
+version = "3.2.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/cf/13/1e7850bb2c69a63267c3dbf37387d3f71a00fd0e2fa55c5db14d64ba1af4/psycopg_pool-3.2.6.tar.gz", hash = "sha256:0f92a7817719517212fbfe2fd58b8c35c1850cdd2a80d36b581ba2085d9148e5", size = 29770, upload-time = "2025-02-26T12:03:47.129Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/47/fd/4feb52a55c1a4bd748f2acaed1903ab54a723c47f6d0242780f4d97104d4/psycopg_pool-3.2.6-py3-none-any.whl", hash = "sha256:5887318a9f6af906d041a0b1dc1c60f8f0dda8340c2572b74e10907b51ed5da7", size = 38252, upload-time = "2025-02-26T12:03:45.073Z" },
+]
+
+[[package]]
 name = "psycopg2"
 version = "2.9.10"
 source = { registry = "https://pypi.org/simple" }
@@ -219,6 +248,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pytest-django"
+version = "4.11.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b1/fb/55d580352db26eb3d59ad50c64321ddfe228d3d8ac107db05387a2fadf3a/pytest_django-4.11.1.tar.gz", hash = "sha256:a949141a1ee103cb0e7a20f1451d355f83f5e4a5d07bdd4dcfdd1fd0ff227991", size = 86202, upload-time = "2025-04-03T18:56:09.338Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/ac/bd0608d229ec808e51a21044f3f2f27b9a37e7a0ebaca7247882e67876af/pytest_django-4.11.1-py3-none-any.whl", hash = "sha256:1b63773f648aa3d8541000c26929c1ea63934be1cfa674c76436966d73fe6a10", size = 25281, upload-time = "2025-04-03T18:56:07.678Z" },
+]
+
+[[package]]
 name = "pytest-factoryboy"
 version = "2.8.1"
 source = { registry = "https://pypi.org/simple" }
@@ -259,10 +300,12 @@ dependencies = [
     { name = "packaging" },
     { name = "pillow" },
     { name = "pluggy" },
+    { name = "psycopg", extra = ["pool"] },
     { name = "psycopg2" },
     { name = "pygments" },
     { name = "pyjwt" },
     { name = "pytest" },
+    { name = "pytest-django" },
     { name = "pytest-factoryboy" },
     { name = "python-dotenv" },
     { name = "sqlparse" },
@@ -283,10 +326,12 @@ requires-dist = [
     { name = "packaging", specifier = "==25.0" },
     { name = "pillow", specifier = "==11.3.0" },
     { name = "pluggy", specifier = "==1.6.0" },
+    { name = "psycopg", extras = ["pool"], specifier = ">=3.2.10" },
     { name = "psycopg2", specifier = "==2.9.10" },
     { name = "pygments", specifier = "==2.19.2" },
     { name = "pyjwt", specifier = "==2.9.0" },
     { name = "pytest", specifier = "==8.4.1" },
+    { name = "pytest-django" },
     { name = "pytest-factoryboy", specifier = "==2.8.1" },
     { name = "python-dotenv", specifier = "==1.1.1" },
     { name = "sqlparse", specifier = "==0.5.3" },
