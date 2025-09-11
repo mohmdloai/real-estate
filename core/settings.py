@@ -72,7 +72,8 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {},
+    'default': {'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',},
     'users': {
         'ENGINE': os.getenv('USERS_DB_ENGINE'),
         'NAME': os.getenv('USERS_DB_NAME'),
