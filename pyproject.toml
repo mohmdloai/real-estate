@@ -23,10 +23,28 @@ dependencies = [
     "pygments==2.19.2",
     "pyjwt==2.9.0",
     "pytest==8.4.1",
-    "pytest-django",
+    "pytest-django>=4.9.0",
     "pytest-factoryboy==2.8.1",
     "python-dotenv==1.1.1",
     "sqlparse==0.5.3",
     "typing-extensions==4.15.0",
     "tzdata==2025.2",
 ]
+
+[tool.black]
+line-length = 88
+target-version = ['py313']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    migrations
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_django = "django"
+known_first_party = ["core", "users", "listings"]
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
