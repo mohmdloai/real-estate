@@ -203,13 +203,7 @@ The project includes Docker configuration for both development and production:
 - Image handling with Pillow
 - Custom database routing for load distribution
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and ensure code quality checks pass
-5. Submit a pull request
 
 ## 📄 License
 
