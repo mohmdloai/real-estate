@@ -46,5 +46,9 @@ profile = "black"
 multi_line_output = 3
 line_length = 88
 known_django = "django"
-known_first_party = ["core", "users", "listings"]
+known_first_party = ["core", "users", "listings", "shared"]
 sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.bandit]
+exclude_dirs = ["migrations", "tests", "__pycache__", "venv", ".venv", "shared/tests"]
+skips = ["B101", "B601"]
