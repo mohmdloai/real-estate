@@ -1,130 +1,173 @@
 import io
-import random
+import secrets  # Use instead of random for security
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
-
 from faker import Faker
-from PIL import Image
 
 from listings.models import Listing
+from users.models import UserAccount as User
 
-User = get_user_model()
 fake = Faker()
 
 
 class Command(BaseCommand):
-    help = "Populate database with sample users and listings"
+    help = "Populate database with sample data"
 
-    def handle(self, *args, **options):
-        self.stdout.write("Starting database population...")
-
-        # Clear existing data
-        self.stdout.write("Clearing existing data...")
-        Listing.objects.all().delete()
-        User.objects.filter(is_superuser=False).delete()
-
-        # Create users
-        self.stdout.write("Creating users...")
-        users = self.create_users()
-
-        # Create listings
-        self.stdout.write("Creating listings...")
-        self.create_listings(users)
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                "Successfully populated database with 50 users and 50 listings"
-            )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--password",
+            type=str,
+            default="testpass123",
+            help="Password for created users (default: testpass123)",
         )
 
-    def create_users(self):
+    def handle(self, *args, **options):
+        password = options["password"]
+
+        # Clear existing data
+        if self.confirm_action(
+            "This will delete all existing users and listings. Continue?"
+        ):
+            User.objects.all().delete()
+            Listing.objects.all().delete()
+            self.stdout.write(self.style.SUCCESS("Cleared existing data"))
+
+        # Create users
         users = []
         realtors = []
 
-        # Create 30 regular users and 20 realtors
-        for i in range(30):
-            user = User.objects.create_user(
-                email=fake.unique.email(), name=fake.name(), password="testpass123"
-            )
-            users.append(user)
+        try:
+            # Create regular users
+            self.stdout.write("Creating users...")
+            for i in range(30):
+                user = User.objects.create_user(
+                    email=fake.unique.email(), name=fake.name(), password=password
+                )
+                users.append(user)
 
-        for i in range(20):
-            realtor = User.objects.create_realtor(
-                email=fake.unique.email(), name=fake.name(), password="testpass123"
-            )
-            users.append(realtor)
-            realtors.append(realtor)
+            # Create realtors
+            for i in range(20):
+                realtor = User.objects.create_realtor(
+                    email=fake.unique.email(), name=fake.name(), password=password
+                )
+                users.append(realtor)
+                realtors.append(realtor)
 
-        self.stdout.write(f"Created {len(users)} users (20 realtors, 30 regular users)")
-        return realtors
-
-    def create_sample_image(self):
-        # Create a simple colored rectangle as placeholder
-        img = Image.new("RGB", (800, 600), color=(73, 109, 137))
-        img_io = io.BytesIO()
-        img.save(img_io, format="JPEG")
-        img_io.seek(0)
-        return ContentFile(img_io.getvalue(), name="sample.jpg")
-
-    def create_listings(self, realtors):
-        states = [
-            "California",
-            "Texas",
-            "Florida",
-            "New York",
-            "Pennsylvania",
-            "Illinois",
-            "Ohio",
-            "Georgia",
-            "North Carolina",
-            "Michigan",
-        ]
-
-        home_types = ["House", "Condo", "Townhouse"]
-        sale_types = ["For Sale", "For Rent"]
-
-        for i in range(50):
-            title = fake.sentence(nb_words=4).replace(".", "")
-            slug = slugify(title) + f"-{i}"
-
-            # Ensure unique slug
-            while Listing.objects.filter(slug=slug).exists():
-                slug = slugify(title) + f"-{random.randint(1000, 9999)}"
-
-            listing = Listing(
-                realtor=random.choice(realtors).email,
-                title=title,
-                slug=slug,
-                address=fake.street_address(),
-                city=fake.city(),
-                state=random.choice(states),
-                zipcode=fake.zipcode(),
-                description=fake.paragraph(nb_sentences=5),
-                price=random.randint(150000, 2000000),
-                bathrooms=round(random.uniform(1.0, 5.0), 1),
-                bedrooms=random.randint(1, 6),
-                sale_type=random.choice(sale_types),
-                home_type=random.choice(home_types),
-                is_published=random.choice([True, False]),
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Created {len(users)} users ({len(realtors)} realtors)"
+                )
             )
 
-            # Add sample images
-            listing.main_photo.save(
-                f"main_{i}.jpg", self.create_sample_image(), save=False
+            # Create listings
+            self.stdout.write("Creating listings...")
+
+            states = [
+                "AL",
+                "AK",
+                "AZ",
+                "AR",
+                "CA",
+                "CO",
+                "CT",
+                "DE",
+                "FL",
+                "GA",
+                "HI",
+                "ID",
+                "IL",
+                "IN",
+                "IA",
+                "KS",
+                "KY",
+                "LA",
+                "ME",
+                "MD",
+                "MA",
+                "MI",
+                "MN",
+                "MS",
+                "MO",
+                "MT",
+                "NE",
+                "NV",
+                "NH",
+                "NJ",
+                "NM",
+                "NY",
+                "NC",
+                "ND",
+                "OH",
+                "OK",
+                "OR",
+                "PA",
+                "RI",
+                "SC",
+                "SD",
+                "TN",
+                "TX",
+                "UT",
+                "VT",
+                "VA",
+                "WA",
+                "WV",
+                "WI",
+                "WY",
+            ]
+
+            sale_types = ["For Sale", "For Rent"]
+            home_types = ["House", "Condo", "Townhouse"]
+
+            listings_created = 0
+            for i in range(100):
+                title = fake.sentence(nb_words=4)[:-1]  # Remove period
+                slug = slugify(title)
+
+                # Ensure unique slug using secure random
+                while Listing.objects.filter(slug=slug).exists():
+                    slug = slugify(title) + f"-{secrets.randbelow(9000) + 1000}"  # nosec B311
+
+                listing = Listing(
+                    realtor=secrets.choice(realtors).email,  # nosec B311
+                    title=title,
+                    slug=slug,
+                    address=fake.street_address(),
+                    city=fake.city(),
+                    state=secrets.choice(states),  # nosec B311
+                    zipcode=fake.zipcode(),
+                    description=fake.paragraph(nb_sentences=5),
+                    price=secrets.randbelow(1850000) + 150000,  # nosec B311
+                    bathrooms=round(secrets.randbelow(40) / 10 + 1.0, 1),  # nosec B311
+                    bedrooms=secrets.randbelow(5) + 1,  # nosec B311
+                    sale_type=secrets.choice(sale_types),  # nosec B311
+                    home_type=secrets.choice(home_types),  # nosec B311
+                    is_published=secrets.choice([True, False]),  # nosec B311
+                )
+
+                try:
+                    listing.save()
+                    listings_created += 1
+                except Exception as e:
+                    self.stdout.write(
+                        self.style.WARNING(f"Failed to create listing: {e}")
+                    )
+
+            self.stdout.write(
+                self.style.SUCCESS(f"Created {listings_created} listings")
             )
-            listing.photo_1.save(
-                f"photo1_{i}.jpg", self.create_sample_image(), save=False
-            )
-            listing.photo_2.save(
-                f"photo2_{i}.jpg", self.create_sample_image(), save=False
-            )
-            listing.photo_3.save(
-                f"photo3_{i}.jpg", self.create_sample_image(), save=False
+            self.stdout.write(
+                self.style.SUCCESS("Database populated successfully!")
             )
 
-            listing.save()
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f"Error populating database: {e}")
+            )
 
-        self.stdout.write("Created 50 listings")
+    def confirm_action(self, message):
+        """Ask user for confirmation"""
+        response = input(f"{message} (y/N): ")
+        return response.lower() in ["y", "yes"]
