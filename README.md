@@ -1,6 +1,7 @@
 # Real Estate API
 
 A Django REST Framework-based real estate application with multi-database architecture, featuring separate databases for users and listings with JWT authentication.
+- This  app based on this course on youtube:https://www.youtube.com/playlist?list=PLJRGQoqpRwdfgaQujSZMzrG7AkRlbjRkC
 
 ## 🏗️ Architecture
 
