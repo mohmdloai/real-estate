@@ -1,12 +1,12 @@
 from django.contrib.auth import get_user_model
 
-from rest_framework import permissions, status
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from .serializers import (
     GoogleAuthResponseSerializer,
     GoogleAuthSerializer,
+    RegisterSerializer,
     UserSerializer,
     get_tokens_for_user,
 )
@@ -15,94 +15,60 @@ from .services.google_auth import GoogleAuthError, GoogleAuthService
 User = get_user_model()
 
 
-class RegisterView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        try:
-            data = request.data
-
-            name = data["name"]
-            email = data["email"]
-            password = data["password"]
-            re_password = data["re_password"]
-            is_realtor = data.get("is_realtor", "False")
-
-            if is_realtor == "True":
-                is_realtor = True
-            else:
-                is_realtor = False
-
-            if password != re_password:
-                return Response(
-                    {"error": "Password don't match, Please retry again"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            if len(password) < 8:
-                return Response(
-                    {"error": "Password must be at least 8 characters!"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            if User.objects.filter(email=email).exists():
-                return Response(
-                    {"error": "User already exists!"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            if is_realtor:
-                User.objects.create_realtor(
-                    name=name,
-                    email=email,
-                    password=password,
-                    auth_provider="email",
-                )
-                return Response(
-                    {"success": "Realtor created successfully"},
-                    status=status.HTTP_201_CREATED,
-                )
-            else:
-                User.objects.create_user(
-                    name=name,
-                    email=email,
-                    password=password,
-                    auth_provider="email",
-                )
-                return Response(
-                    {"success": "User created successfully", "email": email},
-                    status=status.HTTP_201_CREATED,
-                )
-
-        except KeyError as e:
-            return Response(
-                {"error": f"Missing required field: {str(e)}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        except Exception:
-            return Response(
-                {"error": "Oh!, something went wrong while registering"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-
-class RetrieveUserView(APIView):
-
-    def get(self, request, format=None):
-        try:
-            user = request.user
-            user = UserSerializer(user)
-            return Response({"user": user.data}, status=status.HTTP_200_OK)
-        except Exception:
-            return Response(
-                {"error": "Oh!, something went wrong while retrieving data"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-
-class GoogleAuthView(APIView):
+class RegisterView(generics.CreateAPIView):
     """
-    Handle Google OAuth authentication.
+    POST: Register a new user or realtor.
+    """
+
+    permission_classes = [permissions.AllowAny]
+    serializer_class = RegisterSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Extract validated data
+        validated_data = serializer.validated_data
+        is_realtor = validated_data.pop("is_realtor", False)
+        password = validated_data.pop("password")
+
+        # Create user based on type
+        if is_realtor:
+            user = User.objects.create_realtor(
+                password=password,
+                auth_provider="email",
+                **validated_data,
+            )
+            message = "Realtor created successfully"
+        else:
+            user = User.objects.create_user(
+                password=password,
+                auth_provider="email",
+                **validated_data,
+            )
+            message = "User created successfully"
+
+        return Response(
+            {"success": message, "email": user.email},
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class RetrieveUserView(generics.RetrieveAPIView):
+    """
+    GET: Retrieve authenticated user's profile.
+    """
+
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
+class GoogleAuthView(generics.GenericAPIView):
+    """
+    POST: Handle Google OAuth authentication.
 
     Supports both sign-in and registration:
     - If user exists: Sign in and return tokens
@@ -110,15 +76,11 @@ class GoogleAuthView(APIView):
     """
 
     permission_classes = [permissions.AllowAny]
+    serializer_class = GoogleAuthSerializer
 
-    def post(self, request):
-        serializer = GoogleAuthSerializer(data=request.data)
-
-        if not serializer.is_valid():
-            return Response(
-                {"error": serializer.errors},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
         token = serializer.validated_data["token"]
         token_type = serializer.validated_data["token_type"]
@@ -194,21 +156,21 @@ class GoogleAuthView(APIView):
                 {"error": str(e)},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        except Exception:
+        except Exception as e:
             return Response(
                 {"error": "Authentication failed. Please try again."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 
-class GoogleAuthCallbackView(APIView):
+class GoogleAuthCallbackView(generics.GenericAPIView):
     """
-    Handle OAuth callback from Google (for server-side flow).
+    GET: Handle OAuth callback from Google (for server-side flow).
     """
 
     permission_classes = [permissions.AllowAny]
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         """Handle the OAuth callback redirect."""
         code = request.query_params.get("code")
         error = request.query_params.get("error")
