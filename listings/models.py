@@ -12,10 +12,9 @@ class Listing(models.Model):
         CONDO = 'Condo'
         TOWNHOUSE = 'Townhouse'
 
-
     realtor = models.EmailField(max_length=100)
     title = models.CharField(max_length=255)
-    slug = models.SlugField( unique=True)
+    slug = models.SlugField(unique=True)
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
@@ -29,21 +28,21 @@ class Listing(models.Model):
     sale_type = models.CharField(max_length=20, choices=SaleType.choices, default=SaleType.FOR_SALE)
     home_type = models.CharField(max_length=20, choices=HomeType.choices, default=HomeType.HOUSE)
 
-    main_photo = models.ImageField(upload_to='listings/')
-    photo_1 = models.ImageField(upload_to='listings/')
-    photo_2 = models.ImageField(upload_to='listings/')
-    photo_3 = models.ImageField(upload_to='listings/')
+    main_photo = models.ImageField(upload_to='listings/', null=True, blank=True)
+    photo_1 = models.ImageField(upload_to='listings/', null=True, blank=True)
+    photo_2 = models.ImageField(upload_to='listings/', null=True, blank=True)
+    photo_3 = models.ImageField(upload_to='listings/', null=True, blank=True)
 
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=now)
 
+    def delete(self, *args, **kwargs):
+        # Delete old images from storage
+        for photo_field in ['main_photo', 'photo_1', 'photo_2', 'photo_3']:
+            photo = getattr(self, photo_field)
+            if photo:
+                photo.delete(save=False)
+        super().delete(*args, **kwargs)
 
-    def delete(self):
-        self.main_photo.storage.delete(self.main_photo.name)
-        self.photo_1.storage.delete(self.photo_1.name)
-        self.photo_2.storage.delete(self.photo_2.name)
-        self.photo_3.storage.delete(self.photo_3.name)
-        super().delete()
-        
     def __str__(self):
         return self.title
