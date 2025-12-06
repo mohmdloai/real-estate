@@ -1,8 +1,21 @@
 from django.urls import path
-from .views import ManagingListingView, ListingDetailView, ListingView
+
+from .views import (
+    PublicListingDetailView,
+    PublicListingListView,
+    RealtorListingDetailView,
+    RealtorListingListCreateView,
+)
 
 urlpatterns = [
-    path('manage' , ManagingListingView.as_view()),
-    path('detail' , ListingDetailView .as_view()),
-    path('get-listings' , ListingView .as_view()),
+    # Realtor endpoints (authenticated)
+    path("manage/", RealtorListingListCreateView.as_view(), name="listing-manage"),
+    path(
+        "manage/<slug:slug>/",
+        RealtorListingDetailView.as_view(),
+        name="listing-manage-detail",
+    ),
+    # Public endpoints
+    path("", PublicListingListView.as_view(), name="listing-list"),
+    path("<slug:slug>/", PublicListingDetailView.as_view(), name="listing-detail"),
 ]
